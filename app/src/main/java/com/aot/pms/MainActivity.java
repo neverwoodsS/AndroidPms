@@ -4,7 +4,6 @@ import android.Manifest;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.aot.pms.abs.IExitListener;
 
@@ -32,24 +31,17 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
                 .build();
-
-        permissionRequest.requestPermissions();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        boolean b = PermissionUtil.getInstance().enterSettingPage();
-        Log.i("onResume", "onResume = " + b);
-        if (b) {
-            PermissionUtil.getInstance().requestPermissions();
-        }
+        permissionRequest.requestPermissions();
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        PermissionUtil.getInstance().onRequestPermissionsResult(requestCode, permissions, grantResults);
         permissionRequest.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }
