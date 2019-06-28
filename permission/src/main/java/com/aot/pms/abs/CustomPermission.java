@@ -10,8 +10,8 @@ import android.support.v4.content.ContextCompat;
 public class CustomPermission extends AbsBasePermission {
 
 
-    public CustomPermission(String permissionStr, String desc, int pmsIndex, int resultCode, boolean isForce) {
-        super(permissionStr, desc, pmsIndex, resultCode, isForce);
+    public CustomPermission(String permissionStr, String desc, int pmsIndex, int resultCode, boolean isForce, IExitListener exitListener) {
+        super(permissionStr, desc, pmsIndex, resultCode, isForce, exitListener);
     }
 
     //当前权限不是必须申请的时，界面出现在申请下一个权限进入到设置界面中，返回后提示上一个可以忽略的权限框；

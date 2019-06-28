@@ -38,17 +38,21 @@ public abstract class AbsBasePermission {
      * 申请的权限名字
      */
     protected String permissionName;
+
+    protected IExitListener exitListener;
+
     /**
      * 当前权限的id
      */
     static int curPermissionIndex = 0;
 
-    protected AbsBasePermission(String permissionName, String desc, int pmsIndex, int resultCode, boolean isForce) {
+    protected AbsBasePermission(String permissionName, String desc, int pmsIndex, int resultCode, boolean isForce, IExitListener exitListener) {
         this.permissionName = permissionName;
         this.desc = desc;
         this.pmsIndex = pmsIndex;
         this.resultCode = resultCode;
         this.isForce = isForce;
+        this.exitListener = exitListener;
     }
 
     public void setNextPermission(AbsBasePermission nextPermission) {
@@ -92,7 +96,7 @@ public abstract class AbsBasePermission {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-                IExitListener exitListener = PermissionUtil.getInstance().getExitListener();
+//                IExitListener exitListener = PermissionUtil.getInstance().getExitListener();
                 if (exitListener != null) {
                     exitListener.exit();
                 } else {

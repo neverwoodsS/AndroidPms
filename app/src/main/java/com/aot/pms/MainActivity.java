@@ -10,27 +10,30 @@ import com.aot.pms.abs.IExitListener;
 
 public class MainActivity extends AppCompatActivity {
 
+    private PermissionRequest permissionRequest;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        new PermissionUtil.Builder()
+
+        permissionRequest = new PermissionRequest.Builder()
                 .setActivity(this)
+                .addPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, null)
+                .addPermission(Manifest.permission.CAMERA, null, false)
+                .addPermission(Manifest.permission.CALL_PHONE, null)
+                .addPermission(Manifest.permission.READ_PHONE_STATE, null)
+                .addPermission(Manifest.permission.READ_PHONE_STATE, null)
+                .addPermission(Manifest.permission.READ_SMS, null)
                 //添加退出的回调
                 .setExitListener(new IExitListener() {
                     @Override
                     public void exit() {
                     }
                 })
-                .addPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .addPermission(Manifest.permission.CAMERA, Manifest.permission.CAMERA, false)
-                .addPermission(Manifest.permission.CALL_PHONE, Manifest.permission.CALL_PHONE)
-                .addPermission(Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_PHONE_STATE)
-                .addPermission(Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_PHONE_STATE)
-                .addPermission(Manifest.permission.READ_SMS, Manifest.permission.READ_SMS)
                 .build();
-        PermissionUtil.getInstance().requestPermissions();
 
+        permissionRequest.requestPermissions();
     }
 
     @Override
@@ -46,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        PermissionUtil.getInstance().onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        PermissionUtil.getInstance().onRequestPermissionsResult(requestCode, permissions, grantResults);
+        permissionRequest.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }

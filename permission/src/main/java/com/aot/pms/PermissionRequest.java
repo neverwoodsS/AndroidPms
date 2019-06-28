@@ -2,41 +2,27 @@ package com.aot.pms;
 
 import android.app.Activity;
 import android.support.annotation.NonNull;
-
-import com.aot.pms.abs.AbsBasePermission;
 import com.aot.pms.abs.CustomPermission;
 import com.aot.pms.abs.IExitListener;
 import com.aot.pms.abs.IPermission;
-import com.aot.pms.abs.PmsLocal;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+/**
+ * Created on 2019-06-28
+ * Author: zhangll
+ * Email: 413700858@qq.com
+ */
+public class PermissionRequest implements IPermission {
 
-public class PermissionUtil implements IPermission {
+    private CustomPermission firstPermission;
+    private WeakReference<Activity> weakRefActivity;
 
-    private PermissionUtil() {
+    private PermissionRequest(CustomPermission firstPermission, WeakReference<Activity> weakRefActivity) {
+        this.firstPermission = firstPermission;
+        this.weakRefActivity = weakRefActivity;
     }
-
-    private static class Holder {
-        private static PermissionUtil instance = new PermissionUtil();
-    }
-
-    public static PermissionUtil getInstance() {
-        return Holder.instance;
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        Activity activity = weakRefActivity.get();
-        if (firstPermission != null && activity != null) {
-            firstPermission.onRequestPermissionsResult(activity, requestCode, permissions, grantResults);
-        }
-    }
-
-
-    //记录第一个权限
-    private static CustomPermission firstPermission = null;
 
     /**
      * 构建所有的权限后，调用该方法开始申请权限
@@ -49,49 +35,22 @@ public class PermissionUtil implements IPermission {
         }
     }
 
-    /**
-     * 进入设置界面回来后，判断用户是否还需要弹出对应的权限申请的界面
-     *
-     * @return false 不需要弹出界面提示，true需要弹出界面提示
-     */
-    private AbsBasePermission nextPms = null;
-
-    /**
-     * 判断当前权限是否有进入到设置界面中
-     *
-     * @return
-     */
-    public boolean enterSettingPage() {
-        if (firstPermission == null) return false;
-        PmsLocal pmsLocal = new PmsLocal(firstPermission);
-        int index = 0;
-        if (pmsLocal.getCurPmsId() == index) {
-            return firstPermission.isEnterSettingPage == 1000;
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Activity activity = weakRefActivity.get();
+        if (firstPermission != null && activity != null) {
+            firstPermission.onRequestPermissionsResult(activity, requestCode, permissions, grantResults);
         }
-        for (nextPms = firstPermission.getNextPermission(); nextPms != null; ) {
-            ++index;
-            pmsLocal = new PmsLocal(nextPms);
-            if (pmsLocal.getCurPmsId() == index) {
-                return nextPms.isEnterSettingPage == 1000;
-            }
-            nextPms = nextPms.getNextPermission();
-        }
-        return false;
-    }
-
-    private static WeakReference<Activity> weakRefActivity;
-
-    private static IExitListener exitListener;
-
-    public IExitListener getExitListener() {
-        return exitListener;
     }
 
     public static class Builder {
         private ArrayList<Item> permissions = new ArrayList<>();
+        private CustomPermission firstPermission = null;
+        private WeakReference<Activity> weakRefActivity;
+        private IExitListener exitListener;
 
         public Builder setActivity(Activity activity) {
-            weakRefActivity = new WeakReference(activity);
+            weakRefActivity = new WeakReference<>(activity);
             return this;
         }
 
@@ -101,7 +60,7 @@ public class PermissionUtil implements IPermission {
          * @param tip            如果用户拒绝给该权限的提示
          * @return
          */
-        public Builder addPermission(@NonNull String permissionName, @NonNull String tip) {
+        public Builder addPermission(@NonNull String permissionName, String tip) {
             permissions.add(new Item(permissionName, null == tip ? permissionName : tip));
             return this;
         }
@@ -112,7 +71,7 @@ public class PermissionUtil implements IPermission {
          * @param isForce        默认为true，权限必须要给，false 权限可忽略
          * @return
          */
-        public Builder addPermission(@NonNull String permissionName, @NonNull String tip, boolean isForce) {
+        public Builder addPermission(@NonNull String permissionName, String tip, boolean isForce) {
             permissions.add(new Item(permissionName, null == tip ? permissionName : tip, isForce));
             return this;
         }
@@ -131,7 +90,7 @@ public class PermissionUtil implements IPermission {
         /**
          * 构建所有的权限
          */
-        public Builder build() {
+        public PermissionRequest build() {
             int i = 0;
             int resultCode = 1000;
             CustomPermission curPermission = null;//当前的权限
@@ -147,14 +106,14 @@ public class PermissionUtil implements IPermission {
                 prePermission = curPermission;
                 i++;
             }
-            return this;
+            return new PermissionRequest(firstPermission, weakRefActivity);
         }
     }
 
     private static class Item {
-        public boolean isForce = true;
-        public String pmsName;
-        public String pmsDesc;
+        boolean isForce = true;
+        String pmsName;
+        String pmsDesc;
 
         public Item(String pmsName, String pmsDesc) {
             this.pmsName = pmsName;
